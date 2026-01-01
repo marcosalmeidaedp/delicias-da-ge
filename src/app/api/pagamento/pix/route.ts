@@ -4,6 +4,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    const amount = Number(body.total);
+
+    if (!amount || isNaN(amount)) {
+      return NextResponse.json(
+        { error: "Valor inválido" },
+        { status: 400 }
+      );
+    }
+
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
@@ -11,11 +20,11 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        transaction_amount: body.total,
+        transaction_amount: amount,
         description: "Pedido - Delícias da Gê",
         payment_method_id: "pix",
         payer: {
-          email: body.email || "cliente@email.com",
+          email: body.email || "cliente@teste.com",
         },
       }),
     });
@@ -23,9 +32,9 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Erro Mercado Pago:", data);
+      console.error("ERRO MERCADO PAGO:", data);
       return NextResponse.json(
-        { error: "Erro ao gerar pagamento" },
+        { error: "Erro ao gerar pagamento", details: data },
         { status: 500 }
       );
     }
@@ -35,8 +44,8 @@ export async function POST(req: Request) {
       qr_code_base64:
         data.point_of_interaction.transaction_data.qr_code_base64,
     });
-  } catch (error) {
-    console.error("Erro interno:", error);
+  } catch (err) {
+    console.error("ERRO INTERNO:", err);
     return NextResponse.json(
       { error: "Erro interno no servidor" },
       { status: 500 }
