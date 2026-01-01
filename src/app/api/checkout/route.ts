@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     if (!response.ok) {
       console.error("Erro Mercado Pago:", data);
       return NextResponse.json(
-        { error: "Erro ao gerar pagamento" },
+        { error: "Erro ao criar pagamento" },
         { status: 500 }
       );
     }
